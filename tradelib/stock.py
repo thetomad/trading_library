@@ -1,7 +1,7 @@
 import pandas as pd
 
 class Stock:
-    def __init__(self, name: str, data: pd.core.frame.DataFrame) -> None:
+    def __init__(self, name: str, data: pd.core.frame.DataFrame = pd.DataFrame()) -> None:
         """
         Initialize the stock object with an internal pandas dataframe.
 

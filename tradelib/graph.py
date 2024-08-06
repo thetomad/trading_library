@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from stock import Stock
+from .stock import Stock
 import numpy as np
 
 class Graph:

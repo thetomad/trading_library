@@ -1,4 +1,4 @@
-from stock import Stock
+from .stock import Stock
 
 class Portfolio:
     def __init__(self) -> None:
@@ -27,16 +27,16 @@ class Portfolio:
         :param stock: Object of class Stock (see stock.py file). Stores all necesarry information.
         """
         
-        test_value = int(self.available_money / price_stock / 4)
+        test_value = int(self.available_money / price_stock)
+        val = (test_value if test_value <= 100 else 100)
         
         if test_value != 0:
-            self.available_money -= (test_value if test_value <= 10 else 10) * price_stock
-            stock.buy((test_value if test_value <= 10 else 10))
-            self.owned_stocks[stock.name] = {"amount": (test_value if test_value <= 10 else 10), "total value": (test_value if test_value <= 10 else 10) * price_stock}
+            self.available_money -= val * price_stock
+            stock.buy(val)
+            self.owned_stocks[stock.name] = {"amount": val, "total value": val * price_stock}
             stock.active = True
             stock.initial_value = price_stock
             
-
 
     def sell_stocks(self, stock: Stock, price_stock: float) -> None:
         """
