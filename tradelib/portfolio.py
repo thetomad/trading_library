@@ -11,7 +11,7 @@ class Portfolio:
             - If ever connected to any portfolio, add trade confirmations.
             - Decision making.
         """
-        self.available_money = 10000
+        self.available_money = 200
         self.owned_stocks = {}
     
     def __str__(self) -> str:
@@ -27,7 +27,7 @@ class Portfolio:
         :param stock: Object of class Stock (see stock.py file). Stores all necesarry information.
         """
         
-        test_value = int(self.available_money / price_stock)
+        test_value = int(self.available_money / price_stock/ 4)
         val = (test_value if test_value <= 100 else 100)
         
         if test_value != 0:

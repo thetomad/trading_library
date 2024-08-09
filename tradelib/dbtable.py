@@ -29,8 +29,8 @@ class DBTable:
 
     def create_table(self) -> None:
         "Creates the table if it does not already exists."
-        if not hasattr(self, 'connection'): 
-            self.connect()
+        
+        self.connect()
         try:
             self.stock.data.to_sql(self.stock.name, self.connection, if_exists="fail")
         except ValueError as e:
@@ -38,19 +38,23 @@ class DBTable:
             
         self.connection.close()
 
-    def read_table(self) -> None:
+    def read_table(self, conditions: str = "") -> None:
         "Reads values from the database."
-        if not hasattr(self, 'connection'): 
-            self.connect()
+        
+        self.connect()
 
-        self.stock.data = pd.read_sql_query(f"SELECT * from {self.stock.name}.", self.connection)
+        self.stock.data = pd.read_sql_query(f"SELECT * from {self.stock.name} {conditions} ;", self.connection)
+        self.stock.calculate_sma()
+        self.stock.calculate_ema()
+        self.stock.add_crosses()
+        self.stock.add_other_markers()
 
         self.connection.close()
     
     def update_table(self) -> None:
         "Updates a database table with new values/updated values. Adds on top of historical data."
-        if not hasattr(self, 'connection'): 
-            self.connect()
+         
+        self.connect()
 
         self.stock.data.to_sql(self.stock.name, self.connection, if_exists="replace")
 

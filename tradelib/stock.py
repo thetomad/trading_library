@@ -24,6 +24,11 @@ class Stock:
         self.active = False
         self.amount = 0
         self.initial_value = 0
+        if "Close" in self.data.columns:
+            self.calculate_sma()
+            self.calculate_ema()
+            self.add_crosses()
+            self.add_other_markers()
         
     def __str__(self) -> str:
         """Returning the dataframe"""
@@ -72,7 +77,23 @@ class Stock:
             
         self.data["Golden Cross"] = (self.data['EMA50'] > self.data['EMA200']) & (self.data['EMA50'].shift(1) <= self.data['EMA200'].shift(1))
         self.data["Death Cross"] = (self.data['EMA50'] < self.data['EMA200']) & (self.data['EMA50'].shift(1) >= self.data['EMA200'].shift(1))
-        
+    
+    def add_other_markers(self) -> None:
+        "Adding different markers."
+        self.data["Prev 7 days minim low"] = self.data["Low"].shift(1).rolling(7).min()
+        self.data["Prev 7 days maxim high"] = self.data["High"].shift(1).rolling(7).max()
+        self.data['Previous_Close'] = self.data['Close'].shift(1)
+        self.data['TR'] = self.data[['High', 'Low', 'Previous_Close']].apply(
+            lambda x:   max(x['High'] - x['Low'], 
+                        abs(x['High'] - x['Previous_Close']), 
+                        abs(x['Low'] - x['Previous_Close'])), 
+            axis=1)
+
+        period = 20
+        self.data['ATR'] = self.data['TR'].rolling(window=period).mean()
+
+
+    # Buying and selling mehtods
     def buy(self, amount: int) -> None:
         """
         Method for buying stocks.
