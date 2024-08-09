@@ -1,4 +1,6 @@
 import pandas as pd
+import sqlite3
+
 
 class Stock:
     def __init__(self, name: str, data: pd.core.frame.DataFrame = pd.DataFrame()) -> None:
@@ -25,11 +27,8 @@ class Stock:
         self.amount = 0
         self.initial_value = 0
         if "Close" in self.data.columns:
-            self.calculate_sma()
-            self.calculate_ema()
-            self.add_crosses()
-            self.add_other_markers()
-        
+            self.refactor_db()
+
     def __str__(self) -> str:
         """Returning the dataframe"""
         return str(self.data)
@@ -37,6 +36,9 @@ class Stock:
     def __repr__(self) -> str:
         """Returning the dataframe"""
         return str(self.data)
+
+
+    # Markers
 
     def calculate_sma(self, *args: int) -> None:
         """Calculating the SMA values for eighter standard ones (10, 20, 50, 100, 200) or for specified ones"""
@@ -78,7 +80,7 @@ class Stock:
         self.data["Golden Cross"] = (self.data['EMA50'] > self.data['EMA200']) & (self.data['EMA50'].shift(1) <= self.data['EMA200'].shift(1))
         self.data["Death Cross"] = (self.data['EMA50'] < self.data['EMA200']) & (self.data['EMA50'].shift(1) >= self.data['EMA200'].shift(1))
     
-    def add_other_markers(self) -> None:
+    def add_other_markers(self, period: int = 20) -> None:
         "Adding different markers."
         self.data["Prev 7 days minim low"] = self.data["Low"].shift(1).rolling(7).min()
         self.data["Prev 7 days maxim high"] = self.data["High"].shift(1).rolling(7).max()
@@ -88,9 +90,63 @@ class Stock:
                         abs(x['High'] - x['Previous_Close']), 
                         abs(x['Low'] - x['Previous_Close'])), 
             axis=1)
-
-        period = 20
         self.data['ATR'] = self.data['TR'].rolling(window=period).mean()
+
+
+    # Database Table managment. IMPORTANT: always disconnect from db.
+
+    def connect(self, db_name: str = "stock_data.db") -> None:
+        "A method that connects to the specified db."
+        self.connection = sqlite3.connect(self.db_name)
+        self.cursor = self.connection.cursor()
+
+    def create_table(self) -> None:
+        "Creates the table if it does not already exists."
+        
+        self.connect()
+        try:
+            self.data.to_sql(self.name, self.connection, if_exists="fail")
+        except ValueError as e:
+            print(e)
+            
+        self.connection.close()
+
+    def read_table(self, conditions: str = "") -> None:
+        "Reads values from the database."
+        
+        self.connect()
+
+        self.data = pd.read_sql_query(f"SELECT * from {self.name} {conditions} ;", self.connection)
+        self.calculate_sma()
+        self.calculate_ema()
+        self.add_crosses()
+        self.add_other_markers()
+
+        self.connection.close()
+
+    def update_table(self) -> None:
+        "Updates a database table with new values/updated values. Adds on top of historical data."
+         
+        self.connect()
+
+        self.data.to_sql(self.name, self.connection, if_exists="replace")
+
+        self.connection.close()
+
+    # Refactoring methods.
+
+    def refactor_db(self):
+        "Method for refactoring the data for specified stock. This will ensure that the data has the same format in all cases."
+        self.calculate_sma()
+        self.calculate_ema()
+        self.add_crosses()
+        self.add_other_markers()
+
+
+
+
+
+
 
 
     # Buying and selling mehtods
