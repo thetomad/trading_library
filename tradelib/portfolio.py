@@ -29,13 +29,17 @@ class Portfolio:
         
         test_value = int(self.available_money / price_stock/ 4)
         val = (test_value if test_value <= 100 else 100)
-        
+        # input(str(val) +" " +  str(test_value))
         if test_value != 0:
-            self.available_money -= val * price_stock
+            self.available_money = self.available_money - val * price_stock
             stock.buy(val)
-            self.owned_stocks[stock.name] = {"amount": val, "total value": val * price_stock}
+            # if stock.name not in self.owned_stocks.keys():
+            self.owned_stocks[stock.name] = {"amount": val, "total value": val * price_stock, "value unit": price_stock}
+            # else:
+            #     self.owned_stocks[stock.name]["total value"] += val * price_stock
+            #     self.owned_stocks[stock.name]["amount"] += val
             stock.active = True
-            stock.initial_value = price_stock
+            
             
 
     def sell_stocks(self, stock: Stock, price_stock: float) -> None:
@@ -49,4 +53,3 @@ class Portfolio:
         self.owned_stocks.pop(stock.name)
         stock.sell()
         stock.active = False
-        stock.initial_value = 0

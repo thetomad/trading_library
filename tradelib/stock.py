@@ -25,7 +25,7 @@ class Stock:
         self.data = data
         self.active = False
         self.amount = 0
-        self.initial_value = 0
+        
         if "Close" in self.data.columns:
             self.refactor_db()
 
@@ -97,9 +97,10 @@ class Stock:
 
     def connect(self, db_name: str = "stock_data.db") -> None:
         "A method that connects to the specified db."
-        self.connection = sqlite3.connect(self.db_name)
+        
+        self.connection = sqlite3.connect(db_name)
         self.cursor = self.connection.cursor()
-
+        
     def create_table(self) -> None:
         "Creates the table if it does not already exists."
         
@@ -115,7 +116,6 @@ class Stock:
         "Reads values from the database."
         
         self.connect()
-
         self.data = pd.read_sql_query(f"SELECT * from {self.name} {conditions} ;", self.connection)
         self.calculate_sma()
         self.calculate_ema()
@@ -147,7 +147,7 @@ class Stock:
 
 
 
-
+    
 
     # Buying and selling mehtods
     def buy(self, amount: int) -> None:
