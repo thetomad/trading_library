@@ -5,7 +5,7 @@ class ProgressBar:
     
     def __init__(self, index: int, total: int, bar_lenght: int = BAR_LENGTH_DEFAULT) -> None:
         """
-        This class will define a progress bar that prints a dynamic progress bar.
+        This class will define a progress bar that prints dynamicaly.
         
         :param index:       The current index of the progress bar iteration.
         :param total:       The total number of iterations.
@@ -27,12 +27,24 @@ class ProgressBar:
         return "\033[F\033[K" + " " * 40 + "\r" + "█" * self.milestones_crossed + " " * (self.bar_lenght - self.milestones_crossed) + " "
 
 
-class PercentProgressBar(ProgressBar):
+class ProgressBarWithText(ProgressBar):
     def __init__(self, index: int, total: int, bar_lenght: int = BAR_LENGTH_DEFAULT, text_type: str = "percent") -> None:
+        """
+        This class inherits from Progress Bar. It will define a progress bar with additional text to support the progress.
+        
+        :param index:       The current index of the progress bar iteration.
+        :param total:       The total number of iterations.
+        :param bar_lenght:  The bar lenght displayed.
+        :param text_type:   Gives the type of supportive description. 3 possible values so far:
+                                'text'          - a short description of the progress;
+                                'percent'       - a percentage of the progress;
+                                'text percent'  - the combination of the above.
+        """
         self.text_type = text_type
         super().__init__(index, total, bar_lenght)
         
     def __str__(self) -> str:
+        "Returning the bar."
         prev_string = super().__str__()
         try:
             if self.text_type == "percent":
